@@ -3,6 +3,8 @@
 Cycle.js intergration with [Ace Editor](https://ace.c9.io/) using
 [brace](https://github.com/thlorenz/brace).
 
+See [live example](https://tommy-the-runner.github.io/cyclejs-ace-editor/).
+
 ## API
 
 ```
