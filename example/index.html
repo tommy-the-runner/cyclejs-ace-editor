@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+	<meta name="description" content="Cycle.js - Ace Editor"/>
+	<title>Cycle.js - Ace Editor</title>
+	<style>
+		.ace_editor {
+			width: calc(100% - 500px - 50px);
+			height: 250px;
+		}
+		.source-code {
+			float: right;
+			width: 500px;
+			padding: 12px;
+			box-sizing: border-box;
+			background: #DEDEDE;
+			margin: 0;
+		}
+	</style>
+</head>
+<body>
+
+<h1>Cycle.js  - Ace Editor</h1>
+<pre class="source-code">
+import Cycle from '@cycle/core'
+import {div, h3, pre, makeDOMDriver} from '@cycle/dom'
+import {Observable} from 'rx'
+import AceEditor from '../../src'
+
+function main({DOM}) {
+  const editorProps$ = Observable.of()
+
+  const editor = AceEditor({DOM, config$: editorProps$})
+
+  return {
+    DOM: Observable.combineLatest(editor.DOM, editor.code$.debounce(100),
+      (editorVTree, code) => {
+        return div([
+          editorVTree,
+          h3('Debounced value'),
+          pre(code)
+        ])
+      })
+  }
+}
+
+Cycle.run(main, {
+  DOM: makeDOMDriver('#example')
+})
+</pre>
+<div id="example"></div>
+
+<script src="./index.js"></script>
+</body>
+</html>

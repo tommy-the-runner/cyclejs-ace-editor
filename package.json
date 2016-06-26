@@ -1,0 +1,34 @@
+{
+  "name": "cyclejs-ace-editor",
+  "version": "0.0.1",
+  "description": "Cycle.js wrapper for the Ace Editor",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "babel -o index.js src/index.js",
+    "build:example": "browserify example/src/index.js -t babelify --outfile example/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tommy-the-runner/cyclejs-ace-editor.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tommy-the-runner/cyclejs-ace-editor/issues"
+  },
+  "homepage": "https://github.com/tommy-the-runner/cyclejs-ace-editor#readme",
+  "dependencies": {
+    "@cycle/core": "^6.0.3",
+    "@cycle/isolate": "^1.4.0",
+    "rx": "^4.1.0"
+  },
+  "devDependencies": {
+    "@cycle/dom": "^9.4.0",
+    "babel-cli": "^6.10.1",
+    "babel-preset-es2015": "^6.9.0",
+    "babelify": "^7.3.0",
+    "brace": "^0.8.0",
+    "browserify": "^13.0.1"
+  }
+}
