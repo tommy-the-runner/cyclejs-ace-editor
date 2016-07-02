@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "babel -o index.js src/index.js",
+    "build": "browserify src/index.js -t babelify -x @cycle/dom -x @cycle/isolate -x rx -x brace -s AceEditor --outfile index.js",
     "build:example": "browserify example/src/index.js -t babelify --outfile example/index.js",
     "deploy": "gulp deploy"
   },
@@ -27,8 +27,6 @@
   },
   "devDependencies": {
     "@cycle/dom": "^9.4.0",
-    "babel-cli": "^6.10.1",
-    "babel-preset-es2015": "^6.9.0",
     "babelify": "^7.3.0",
     "browserify": "^13.0.1",
     "gulp": "^3.9.1",
