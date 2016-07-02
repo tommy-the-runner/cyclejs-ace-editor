@@ -2,6 +2,7 @@ import {div, pre} from '@cycle/dom'
 import isolate from '@cycle/isolate'
 import {ReplaySubject, Observable} from 'rx'
 import AceEditorWidget from './ace_editor_widget'
+import applyParams from './apply_params'
 
 var ace
 
@@ -9,39 +10,12 @@ if (typeof window !== 'undefined') {
   ace = require('brace')
 }
 
-function intentEditorCode(editor$) {
-  const editorCode$ = editor$
-    .flatMap(editor => {
-      let subject = new ReplaySubject(1)
-
-      editor.on('change', e => {
-        const value = editor.getValue()
-        subject.onNext(value)
-      })
-
-      return subject
-    })
-
-  const subject$ = new ReplaySubject(1)
-
-  editorCode$
-    .multicast(subject$)
-    .connect()
-
-  return subject$
-}
-
 function intent({DOM, params$, initialValue$}) {
   const editor$ = DOM.select('.ace_editor')
     .observable
     .filter(els => els.length > 0)
     .map(els => els[0])
-    .map(el => {
-      const editor = ace.edit(el)
-      return editor
-    })
-
-  const editorCode$ = intentEditorCode(editor$)
+    .map(el => ace.edit(el))
 
   const flatParams$ = params$.concatMap(params => {
     const keys = Object.keys(params)
@@ -52,37 +26,26 @@ function intent({DOM, params$, initialValue$}) {
 
   return {
     editor$,
-    editorCode$,
     params$: flatParams$,
     initialValue$: initialValue$ || Observable.just('')
   }
 }
 
-function model({editor$, editorCode$, initialValue$, params$}) {
-  editor$
-    .flatMap(editor => {
-      return params$.reduce((editor, config) => {
-        const key = config[0]
-        const value = config[1]
+function model({editor$, initialValue$, params$}) {
+  applyParams(editor$, params$).subscribe()
 
-        switch(key) {
-        case 'theme':
-          editor.setTheme(value)
-          break
-        case 'mode':
-          editor.session.setMode(value)
-          break
-        case 'readOnly':
-          editor.setReadOnly(value)
-          break
+  const editorCode$ = editor$
+    .map(editor => {
+      let subject = new ReplaySubject(1)
 
-        default:
-          throw new Error('Unrecognized configuration key: ' + key + ', use `editor$` sink and handle it on your own')
-        }
-        return editor
-      }, editor)
+      editor.on('change', e => {
+        const value = editor.getValue()
+        subject.onNext(value)
+      })
+
+      return subject
     })
-    .subscribe()
+    .switch()
 
   return {
     value$: initialValue$.concat(editorCode$)
@@ -99,8 +62,8 @@ function view(initialValue$) {
 }
 
 function AceEditor(sources) {
-  const {editorCode$, editor$, initialValue$, params$} = intent(sources)
-  const {value$} = model({editorCode$, editor$, initialValue$, params$})
+  const {editor$, initialValue$, params$} = intent(sources)
+  const {value$} = model({editor$, initialValue$, params$})
   const vtree$ = view(initialValue$)
 
   return {

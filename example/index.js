@@ -34,7 +34,7 @@ _core2.default.run(main, {
   DOM: (0, _dom.makeDOMDriver)('#example')
 });
 
-},{"../../src":67,"@cycle/core":2,"@cycle/dom":3,"rx":26}],2:[function(require,module,exports){
+},{"../../src":68,"@cycle/core":2,"@cycle/dom":3,"rx":26}],2:[function(require,module,exports){
 "use strict";
 
 var Rx = require("rx");
@@ -35560,86 +35560,9 @@ exports.default = AceEditorWidget;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-
-var _dom = require('@cycle/dom');
-
-var _isolate = require('@cycle/isolate');
-
-var _isolate2 = _interopRequireDefault(_isolate);
-
-var _rx = require('rx');
-
-var _ace_editor_widget = require('./ace_editor_widget');
-
-var _ace_editor_widget2 = _interopRequireDefault(_ace_editor_widget);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var ace;
-
-if (typeof window !== 'undefined') {
-  ace = require('brace');
-}
-
-function intentEditorCode(editor$) {
-  var editorCode$ = editor$.flatMap(function (editor) {
-    var subject = new _rx.ReplaySubject(1);
-
-    editor.on('change', function (e) {
-      var value = editor.getValue();
-      subject.onNext(value);
-    });
-
-    return subject;
-  });
-
-  var subject$ = new _rx.ReplaySubject(1);
-
-  editorCode$.multicast(subject$).connect();
-
-  return subject$;
-}
-
-function intent(_ref) {
-  var DOM = _ref.DOM;
-  var params$ = _ref.params$;
-  var initialValue$ = _ref.initialValue$;
-
-  var editor$ = DOM.select('.ace_editor').observable.filter(function (els) {
-    return els.length > 0;
-  }).map(function (els) {
-    return els[0];
-  }).map(function (el) {
-    var editor = ace.edit(el);
-    return editor;
-  });
-
-  var editorCode$ = intentEditorCode(editor$);
-
-  var flatParams$ = params$.concatMap(function (params) {
-    var keys = Object.keys(params);
-
-    var paramsArray = keys.map(function (key) {
-      return [key, params[key]];
-    });
-    return _rx.Observable.from(paramsArray);
-  });
-
-  return {
-    editor$: editor$,
-    editorCode$: editorCode$,
-    params$: flatParams$,
-    initialValue$: initialValue$ || _rx.Observable.just('')
-  };
-}
-
-function model(_ref2) {
-  var editor$ = _ref2.editor$;
-  var editorCode$ = _ref2.editorCode$;
-  var initialValue$ = _ref2.initialValue$;
-  var params$ = _ref2.params$;
-
-  editor$.flatMap(function (editor) {
+exports.default = applyParams;
+function applyParams(editor$, params$) {
+  return editor$.flatMap(function (editor) {
     return params$.reduce(function (editor, config) {
       var key = config[0];
       var value = config[1];
@@ -35660,7 +35583,86 @@ function model(_ref2) {
       }
       return editor;
     }, editor);
-  }).subscribe();
+  });
+}
+
+},{}],68:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _dom = require('@cycle/dom');
+
+var _isolate = require('@cycle/isolate');
+
+var _isolate2 = _interopRequireDefault(_isolate);
+
+var _rx = require('rx');
+
+var _ace_editor_widget = require('./ace_editor_widget');
+
+var _ace_editor_widget2 = _interopRequireDefault(_ace_editor_widget);
+
+var _apply_params = require('./apply_params');
+
+var _apply_params2 = _interopRequireDefault(_apply_params);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var ace;
+
+if (typeof window !== 'undefined') {
+  ace = require('brace');
+}
+
+function intent(_ref) {
+  var DOM = _ref.DOM;
+  var params$ = _ref.params$;
+  var initialValue$ = _ref.initialValue$;
+
+  var editor$ = DOM.select('.ace_editor').observable.filter(function (els) {
+    return els.length > 0;
+  }).map(function (els) {
+    return els[0];
+  }).map(function (el) {
+    return ace.edit(el);
+  });
+
+  var flatParams$ = params$.concatMap(function (params) {
+    var keys = Object.keys(params);
+
+    var paramsArray = keys.map(function (key) {
+      return [key, params[key]];
+    });
+    return _rx.Observable.from(paramsArray);
+  });
+
+  return {
+    editor$: editor$,
+    params$: flatParams$,
+    initialValue$: initialValue$ || _rx.Observable.just('')
+  };
+}
+
+function model(_ref2) {
+  var editor$ = _ref2.editor$;
+  var initialValue$ = _ref2.initialValue$;
+  var params$ = _ref2.params$;
+
+  (0, _apply_params2.default)(editor$, params$).subscribe();
+
+  var editorCode$ = editor$.map(function (editor) {
+    var subject = new _rx.ReplaySubject(1);
+
+    editor.on('change', function (e) {
+      var value = editor.getValue();
+      subject.onNext(value);
+    });
+
+    return subject;
+  }).switch();
 
   return {
     value$: initialValue$.concat(editorCode$)
@@ -35677,12 +35679,11 @@ function view(initialValue$) {
 function AceEditor(sources) {
   var _intent = intent(sources);
 
-  var editorCode$ = _intent.editorCode$;
   var editor$ = _intent.editor$;
   var initialValue$ = _intent.initialValue$;
   var params$ = _intent.params$;
 
-  var _model = model({ editorCode$: editorCode$, editor$: editor$, initialValue$: initialValue$, params$: params$ });
+  var _model = model({ editor$: editor$, initialValue$: initialValue$, params$: params$ });
 
   var value$ = _model.value$;
 
@@ -35701,4 +35702,4 @@ function AceEditorWrapper(sources) {
 
 exports.default = AceEditorWrapper;
 
-},{"./ace_editor_widget":66,"@cycle/dom":3,"@cycle/isolate":11,"brace":12,"rx":26}]},{},[1]);
+},{"./ace_editor_widget":66,"./apply_params":67,"@cycle/dom":3,"@cycle/isolate":11,"brace":12,"rx":26}]},{},[1]);
