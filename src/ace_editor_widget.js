@@ -4,26 +4,25 @@ if (typeof window !== 'undefined') {
   ace = require('brace')
 }
 
-var AceEditorWidget = function (initialValue) {
-  this.initialValue = initialValue
+export default class AceEditorWidget {
+  constructor(initialValue) {
+    this.type = 'Widget'
+    this.initialValue = initialValue
+  }
+
+  init() {
+    const el = document.createElement('pre')
+    el.textContent = this.initialValue
+    this.editor = ace.edit(el)
+    return el
+  }
+
+  update(previous, domNode) {
+
+  }
+
+  destroy(domNode) {
+    this.editor.destroy()
+    this.editor.container.remove()
+  }
 }
-
-AceEditorWidget.prototype.type = 'Widget'
-
-AceEditorWidget.prototype.init = function() {
-  const el = document.createElement('pre')
-  el.textContent = this.initialValue
-  this.editor = ace.edit(el)
-  return el
-}
-
-AceEditorWidget.prototype.update = function(previous, domNode) {
-
-}
-
-AceEditorWidget.prototype.destroy = function(domNode) {
-  this.editor.destroy()
-  this.editor.container.remove()
-}
-
-export default AceEditorWidget
