@@ -1,11 +1,11 @@
 {
   "name": "cyclejs-ace-editor",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Cycle.js wrapper for the Ace Editor",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "babel -o index.js src/index.js",
+    "build": "babel src --out-dir lib",
     "build:example": "browserify example/src/index.js -t babelify --outfile example/index.js",
     "deploy": "gulp deploy"
   },
