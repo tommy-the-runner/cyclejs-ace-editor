@@ -8,27 +8,18 @@ if (typeof window !== 'undefined') {
   ace = require('brace')
 }
 
-function getIdFrom(DOM) {
-  if (!DOM.namespace) {
-    return ''
-  }
-
-  const lastNamespace = DOM.namespace.slice(-1).shift()
-  return lastNamespace.replace('.', 'editor-')
-}
-
 function intentEditorCode(editor$) {
   const editorCode$ = editor$
     .flatMap(editor => {
       let subject = new ReplaySubject(1)
 
       editor.on('change', e => {
-      const value = editor.getValue()
-      subject.onNext(value)
-    })
+        const value = editor.getValue()
+        subject.onNext(value)
+      })
 
-  return subject
-})
+      return subject
+    })
 
   const subject$ = new ReplaySubject(1)
 
@@ -39,13 +30,13 @@ function intentEditorCode(editor$) {
   return subject$
 }
 
-function intent(id, {DOM, params$, initialValue$}) {
-  const editor$ = DOM.select(`#${id}`)
+function intent({DOM, params$, initialValue$}) {
+  const editor$ = DOM.select('pre')
     .observable
     .filter(els => els.length > 0)
     .map(els => els[0])
     .map(el => {
-      const editor = ace.edit(el.id)
+      const editor = ace.edit(el)
       return editor
     })
 
@@ -97,21 +88,19 @@ function model({editor$, editorCode$, initialValue$, params$}) {
   }
 }
 
-function view(id, initialValue$) {
+function view(initialValue$) {
 
   return initialValue$.take(1).map(code =>
     div([
-      pre(`#${id}`, code)
+      pre(code)
     ])
   )
 }
 
 function AceEditor(sources) {
-  const id = getIdFrom(sources.DOM)
-
-  const {editorCode$, editor$, initialValue$, params$} = intent(id, sources)
+  const {editorCode$, editor$, initialValue$, params$} = intent(sources)
   const {value$} = model({editorCode$, editor$, initialValue$, params$})
-  const vtree$ = view(id, initialValue$)
+  const vtree$ = view(initialValue$)
 
   return {
     DOM: vtree$,

@@ -20,15 +20,6 @@ if (typeof window !== 'undefined') {
   ace = require('brace');
 }
 
-function getIdFrom(DOM) {
-  if (!DOM.namespace) {
-    return '';
-  }
-
-  var lastNamespace = DOM.namespace.slice(-1).shift();
-  return lastNamespace.replace('.', 'editor-');
-}
-
 function intentEditorCode(editor$) {
   var editorCode$ = editor$.flatMap(function (editor) {
     var subject = new _rx.ReplaySubject(1);
@@ -48,17 +39,17 @@ function intentEditorCode(editor$) {
   return subject$;
 }
 
-function intent(id, _ref) {
+function intent(_ref) {
   var DOM = _ref.DOM;
   var params$ = _ref.params$;
   var initialValue$ = _ref.initialValue$;
 
-  var editor$ = DOM.select('#' + id).observable.filter(function (els) {
+  var editor$ = DOM.select('pre').observable.filter(function (els) {
     return els.length > 0;
   }).map(function (els) {
     return els[0];
   }).map(function (el) {
-    var editor = ace.edit(el.id);
+    var editor = ace.edit(el);
     return editor;
   });
 
@@ -115,17 +106,15 @@ function model(_ref2) {
   };
 }
 
-function view(id, initialValue$) {
+function view(initialValue$) {
 
   return initialValue$.take(1).map(function (code) {
-    return (0, _dom.div)([(0, _dom.pre)('#' + id, code)]);
+    return (0, _dom.div)([(0, _dom.pre)(code)]);
   });
 }
 
 function AceEditor(sources) {
-  var id = getIdFrom(sources.DOM);
-
-  var _intent = intent(id, sources);
+  var _intent = intent(sources);
 
   var editorCode$ = _intent.editorCode$;
   var editor$ = _intent.editor$;
@@ -136,7 +125,7 @@ function AceEditor(sources) {
 
   var value$ = _model.value$;
 
-  var vtree$ = view(id, initialValue$);
+  var vtree$ = view(initialValue$);
 
   return {
     DOM: vtree$,
