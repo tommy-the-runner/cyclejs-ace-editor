@@ -50,8 +50,8 @@ function intentEditorCode(editor$) {
 
 function intent(id, _ref) {
   var DOM = _ref.DOM;
-  var value$ = _ref.value$;
-  var config$ = _ref.config$;
+  var params$ = _ref.params$;
+  var initialValue$ = _ref.initialValue$;
 
   var editor$ = DOM.select('#' + id).observable.filter(function (els) {
     return els.length > 0;
@@ -64,31 +64,31 @@ function intent(id, _ref) {
 
   var editorCode$ = intentEditorCode(editor$);
 
-  var flatConfig$ = config$.concatMap(function (config) {
-    var keys = Object.keys(config);
+  var flatParams$ = params$.concatMap(function (params) {
+    var keys = Object.keys(params);
 
-    var configArray = keys.map(function (key) {
-      return [key, config[key]];
+    var paramsArray = keys.map(function (key) {
+      return [key, params[key]];
     });
-    return _rx.Observable.from(configArray);
+    return _rx.Observable.from(paramsArray);
   });
 
   return {
     editor$: editor$,
-    config$: flatConfig$,
     editorCode$: editorCode$,
-    value$: value$ || _rx.Observable.just('')
+    params$: flatParams$,
+    initialValue$: initialValue$ || _rx.Observable.just('')
   };
 }
 
 function model(_ref2) {
   var editor$ = _ref2.editor$;
   var editorCode$ = _ref2.editorCode$;
-  var value$ = _ref2.value$;
-  var config$ = _ref2.config$;
+  var initialValue$ = _ref2.initialValue$;
+  var params$ = _ref2.params$;
 
   editor$.flatMap(function (editor) {
-    return config$.reduce(function (editor, config) {
+    return params$.reduce(function (editor, config) {
       var key = config[0];
       var value = config[1];
 
@@ -111,13 +111,13 @@ function model(_ref2) {
   }).subscribe();
 
   return {
-    code$: value$.concat(editorCode$)
+    value$: initialValue$.concat(editorCode$)
   };
 }
 
-function view(id, value$) {
+function view(id, initialValue$) {
 
-  return value$.take(1).map(function (code) {
+  return initialValue$.take(1).map(function (code) {
     return (0, _dom.div)([(0, _dom.pre)('#' + id, code)]);
   });
 }
@@ -129,18 +129,18 @@ function AceEditor(sources) {
 
   var editorCode$ = _intent.editorCode$;
   var editor$ = _intent.editor$;
-  var value$ = _intent.value$;
-  var config$ = _intent.config$;
+  var initialValue$ = _intent.initialValue$;
+  var params$ = _intent.params$;
 
-  var _model = model({ editorCode$: editorCode$, editor$: editor$, value$: value$, config$: config$ });
+  var _model = model({ editorCode$: editorCode$, editor$: editor$, initialValue$: initialValue$, params$: params$ });
 
-  var code$ = _model.code$;
+  var value$ = _model.value$;
 
-  var vtree$ = view(id, value$);
+  var vtree$ = view(id, initialValue$);
 
   return {
     DOM: vtree$,
-    code$: code$,
+    value$: value$,
     editor$: editor$
   };
 }

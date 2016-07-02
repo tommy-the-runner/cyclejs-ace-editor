@@ -39,7 +39,7 @@ function intentEditorCode(editor$) {
   return subject$
 }
 
-function intent(id, {DOM, value$, config$}) {
+function intent(id, {DOM, params$, initialValue$}) {
   const editor$ = DOM.select(`#${id}`)
     .observable
     .filter(els => els.length > 0)
@@ -51,25 +51,25 @@ function intent(id, {DOM, value$, config$}) {
 
   const editorCode$ = intentEditorCode(editor$)
 
-  const flatConfig$ = config$.concatMap(config => {
-    const keys = Object.keys(config)
+  const flatParams$ = params$.concatMap(params => {
+    const keys = Object.keys(params)
 
-    const configArray = keys.map(key => [key, config[key]])
-    return Observable.from(configArray)
+    const paramsArray = keys.map(key => [key, params[key]])
+    return Observable.from(paramsArray)
   })
 
   return {
     editor$,
-    config$: flatConfig$,
     editorCode$,
-    value$: value$ || Observable.just('')
+    params$: flatParams$,
+    initialValue$: initialValue$ || Observable.just('')
   }
 }
 
-function model({editor$, editorCode$, value$, config$}) {
+function model({editor$, editorCode$, initialValue$, params$}) {
   editor$
     .flatMap(editor => {
-      return config$.reduce((editor, config) => {
+      return params$.reduce((editor, config) => {
         const key = config[0]
         const value = config[1]
 
@@ -93,13 +93,13 @@ function model({editor$, editorCode$, value$, config$}) {
     .subscribe()
 
   return {
-    code$: value$.concat(editorCode$)
+    value$: initialValue$.concat(editorCode$)
   }
 }
 
-function view(id, value$) {
+function view(id, initialValue$) {
 
-  return value$.take(1).map(code =>
+  return initialValue$.take(1).map(code =>
     div([
       pre(`#${id}`, code)
     ])
@@ -109,13 +109,13 @@ function view(id, value$) {
 function AceEditor(sources) {
   const id = getIdFrom(sources.DOM)
 
-  const {editorCode$, editor$, value$, config$} = intent(id, sources)
-  const {code$} = model({editorCode$, editor$, value$, config$})
-  const vtree$ = view(id, value$)
+  const {editorCode$, editor$, initialValue$, params$} = intent(id, sources)
+  const {value$} = model({editorCode$, editor$, initialValue$, params$})
+  const vtree$ = view(id, initialValue$)
 
   return {
     DOM: vtree$,
-    code$: code$,
+    value$: value$,
     editor$: editor$
   }
 }

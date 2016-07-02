@@ -8,22 +8,22 @@ See [live example](https://tommy-the-runner.github.io/cyclejs-ace-editor/).
 ## API
 
 ```
-{editor$, code$} = AceEditor({DOM, value$, config$})
+{editor$, value$} = AceEditor({DOM, params$, initialValue$})
 ```
 
 Sources:
 
- - `value$` - observable with an initial value
- - `config$` - observable with a key-value configuration
+ - `params$` - observable with a key-value configuration
+ - `initialValue$` - observable with a string as initial editor code
  - `DOM` - DOM driver
 
 Sinks:
 
  - `editor$` - instance of Ace Editor, use when there is no built-in wrapper for the feature you want
- - `code$` - observable of editor content
+ - `value$` - observable of editor content
 
 
-Supported keys for the config:
+Supported keys for the params:
  - `theme`
  - `mode`
  - `readOnly`
