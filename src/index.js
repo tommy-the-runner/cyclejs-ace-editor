@@ -1,14 +1,62 @@
 import {div, pre} from '@cycle/dom'
 import isolate from '@cycle/isolate'
 import {ReplaySubject, Observable} from 'rx'
-import AceEditorWidget from './ace_editor_widget'
-import applyParams from './apply_params'
 
 var ace
 
 if (typeof window !== 'undefined') {
   ace = require('brace')
 }
+
+class AceEditorWidget {
+  constructor(initialValue) {
+    this.type = 'Widget'
+    this.initialValue = initialValue
+  }
+
+  init() {
+    const el = document.createElement('pre')
+    el.textContent = this.initialValue
+    this.editor = ace.edit(el)
+    return el
+  }
+
+  update(previous, domNode) {
+
+  }
+
+  destroy(domNode) {
+    this.editor.destroy()
+    this.editor.container.remove()
+  }
+}
+
+function applyParams(editor$, params$) {
+  return editor$
+    .flatMap(editor => {
+      return params$.reduce((editor, config) => {
+        const key = config[0]
+        const value = config[1]
+
+        switch(key) {
+          case 'theme':
+            editor.setTheme(value)
+            break
+          case 'mode':
+            editor.session.setMode(value)
+            break
+          case 'readOnly':
+            editor.setReadOnly(value)
+            break
+
+          default:
+            throw new Error('Unrecognized configuration key: ' + key + ', use `editor$` sink and handle it on your own')
+        }
+        return editor
+      }, editor)
+    })
+}
+
 
 function intent({DOM, params$, initialValue$}) {
   const editor$ = DOM.select('.ace_editor')
