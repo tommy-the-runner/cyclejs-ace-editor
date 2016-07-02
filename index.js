@@ -16,31 +16,16 @@ var _ace_editor_widget = require('./ace_editor_widget');
 
 var _ace_editor_widget2 = _interopRequireDefault(_ace_editor_widget);
 
+var _apply_params = require('./apply_params');
+
+var _apply_params2 = _interopRequireDefault(_apply_params);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var ace;
 
 if (typeof window !== 'undefined') {
   ace = require('brace');
-}
-
-function intentEditorCode(editor$) {
-  var editorCode$ = editor$.flatMap(function (editor) {
-    var subject = new _rx.ReplaySubject(1);
-
-    editor.on('change', function (e) {
-      var value = editor.getValue();
-      subject.onNext(value);
-    });
-
-    return subject;
-  });
-
-  var subject$ = new _rx.ReplaySubject(1);
-
-  editorCode$.multicast(subject$).connect();
-
-  return subject$;
 }
 
 function intent(_ref) {
@@ -53,11 +38,8 @@ function intent(_ref) {
   }).map(function (els) {
     return els[0];
   }).map(function (el) {
-    var editor = ace.edit(el);
-    return editor;
+    return ace.edit(el);
   });
-
-  var editorCode$ = intentEditorCode(editor$);
 
   var flatParams$ = params$.concatMap(function (params) {
     var keys = Object.keys(params);
@@ -70,7 +52,6 @@ function intent(_ref) {
 
   return {
     editor$: editor$,
-    editorCode$: editorCode$,
     params$: flatParams$,
     initialValue$: initialValue$ || _rx.Observable.just('')
   };
@@ -78,32 +59,21 @@ function intent(_ref) {
 
 function model(_ref2) {
   var editor$ = _ref2.editor$;
-  var editorCode$ = _ref2.editorCode$;
   var initialValue$ = _ref2.initialValue$;
   var params$ = _ref2.params$;
 
-  editor$.flatMap(function (editor) {
-    return params$.reduce(function (editor, config) {
-      var key = config[0];
-      var value = config[1];
+  (0, _apply_params2.default)(editor$, params$).subscribe();
 
-      switch (key) {
-        case 'theme':
-          editor.setTheme(value);
-          break;
-        case 'mode':
-          editor.session.setMode(value);
-          break;
-        case 'readOnly':
-          editor.setReadOnly(value);
-          break;
+  var editorCode$ = editor$.map(function (editor) {
+    var subject = new _rx.ReplaySubject(1);
 
-        default:
-          throw new Error('Unrecognized configuration key: ' + key + ', use `editor$` sink and handle it on your own');
-      }
-      return editor;
-    }, editor);
-  }).subscribe();
+    editor.on('change', function (e) {
+      var value = editor.getValue();
+      subject.onNext(value);
+    });
+
+    return subject;
+  }).switch();
 
   return {
     value$: initialValue$.concat(editorCode$)
@@ -120,12 +90,11 @@ function view(initialValue$) {
 function AceEditor(sources) {
   var _intent = intent(sources);
 
-  var editorCode$ = _intent.editorCode$;
   var editor$ = _intent.editor$;
   var initialValue$ = _intent.initialValue$;
   var params$ = _intent.params$;
 
-  var _model = model({ editorCode$: editorCode$, editor$: editor$, initialValue$: initialValue$, params$: params$ });
+  var _model = model({ editor$: editor$, initialValue$: initialValue$, params$: params$ });
 
   var value$ = _model.value$;
 
