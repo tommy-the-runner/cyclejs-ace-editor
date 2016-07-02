@@ -5,6 +5,12 @@ Cycle.js intergration with [Ace Editor](https://ace.c9.io/) using
 
 See [live example](https://tommy-the-runner.github.io/cyclejs-ace-editor/).
 
+## Installation
+
+```
+npm install cyclejs-ace-editor --save
+```
+
 ## API
 
 ```
