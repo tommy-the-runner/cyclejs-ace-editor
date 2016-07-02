@@ -8,6 +8,26 @@ if (typeof window !== 'undefined') {
   ace = require('brace')
 }
 
+var AceEditorWidget = function (){}
+
+AceEditorWidget.prototype.type = 'Widget'
+
+AceEditorWidget.prototype.init = function() {
+  const el = document.createElement('pre')
+  this.editor = ace.edit(el)
+  return el
+}
+
+AceEditorWidget.prototype.update = function(previous, domNode) {
+
+}
+
+AceEditorWidget.prototype.destroy = function(domNode) {
+  this.editor.destroy()
+  this.editor.container.remove()
+}
+
+
 function intentEditorCode(editor$) {
   const editorCode$ = editor$
     .flatMap(editor => {
@@ -31,7 +51,7 @@ function intentEditorCode(editor$) {
 }
 
 function intent({DOM, params$, initialValue$}) {
-  const editor$ = DOM.select('pre')
+  const editor$ = DOM.select('.ace_editor')
     .observable
     .filter(els => els.length > 0)
     .map(els => els[0])
@@ -92,7 +112,7 @@ function view(initialValue$) {
 
   return initialValue$.take(1).map(code =>
     div([
-      pre(code)
+      new AceEditorWidget(code)
     ])
   )
 }

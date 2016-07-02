@@ -35527,6 +35527,23 @@ if (typeof window !== 'undefined') {
   ace = require('brace');
 }
 
+var AceEditorWidget = function AceEditorWidget() {};
+
+AceEditorWidget.prototype.type = 'Widget';
+
+AceEditorWidget.prototype.init = function () {
+  var el = document.createElement('pre');
+  this.editor = ace.edit(el);
+  return el;
+};
+
+AceEditorWidget.prototype.update = function (previous, domNode) {};
+
+AceEditorWidget.prototype.destroy = function (domNode) {
+  this.editor.destroy();
+  this.editor.container.remove();
+};
+
 function intentEditorCode(editor$) {
   var editorCode$ = editor$.flatMap(function (editor) {
     var subject = new _rx.ReplaySubject(1);
@@ -35551,7 +35568,7 @@ function intent(_ref) {
   var params$ = _ref.params$;
   var initialValue$ = _ref.initialValue$;
 
-  var editor$ = DOM.select('pre').observable.filter(function (els) {
+  var editor$ = DOM.select('.ace_editor').observable.filter(function (els) {
     return els.length > 0;
   }).map(function (els) {
     return els[0];
@@ -35616,7 +35633,7 @@ function model(_ref2) {
 function view(initialValue$) {
 
   return initialValue$.take(1).map(function (code) {
-    return (0, _dom.div)([(0, _dom.pre)(code)]);
+    return (0, _dom.div)([new AceEditorWidget(code)]);
   });
 }
 
