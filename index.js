@@ -12,6 +12,10 @@ var _isolate2 = _interopRequireDefault(_isolate);
 
 var _rx = require('rx');
 
+var _ace_editor_widget = require('./ace_editor_widget');
+
+var _ace_editor_widget2 = _interopRequireDefault(_ace_editor_widget);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var ace;
@@ -19,23 +23,6 @@ var ace;
 if (typeof window !== 'undefined') {
   ace = require('brace');
 }
-
-var AceEditorWidget = function AceEditorWidget() {};
-
-AceEditorWidget.prototype.type = 'Widget';
-
-AceEditorWidget.prototype.init = function () {
-  var el = document.createElement('pre');
-  this.editor = ace.edit(el);
-  return el;
-};
-
-AceEditorWidget.prototype.update = function (previous, domNode) {};
-
-AceEditorWidget.prototype.destroy = function (domNode) {
-  this.editor.destroy();
-  this.editor.container.remove();
-};
 
 function intentEditorCode(editor$) {
   var editorCode$ = editor$.flatMap(function (editor) {
@@ -126,7 +113,7 @@ function model(_ref2) {
 function view(initialValue$) {
 
   return initialValue$.take(1).map(function (code) {
-    return (0, _dom.div)([new AceEditorWidget(code)]);
+    return (0, _dom.div)([new _ace_editor_widget2.default(code)]);
   });
 }
 

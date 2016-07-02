@@ -19,8 +19,9 @@ function main(_ref) {
   var DOM = _ref.DOM;
 
   var editorProps$ = _rx.Observable.of();
+  var initialValue$ = _rx.Observable.just('Initial code');
 
-  var editor = (0, _src2.default)({ DOM: DOM, params$: editorProps$ });
+  var editor = (0, _src2.default)({ DOM: DOM, params$: editorProps$, initialValue$: initialValue$ });
 
   return {
     DOM: _rx.Observable.combineLatest(editor.DOM, editor.value$.debounce(100), function (editorVTree, code) {
@@ -33,7 +34,7 @@ _core2.default.run(main, {
   DOM: (0, _dom.makeDOMDriver)('#example')
 });
 
-},{"../../src":66,"@cycle/core":2,"@cycle/dom":3,"rx":26}],2:[function(require,module,exports){
+},{"../../src":67,"@cycle/core":2,"@cycle/dom":3,"rx":26}],2:[function(require,module,exports){
 "use strict";
 
 var Rx = require("rx");
@@ -35510,29 +35511,21 @@ function extend() {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-
-var _dom = require('@cycle/dom');
-
-var _isolate = require('@cycle/isolate');
-
-var _isolate2 = _interopRequireDefault(_isolate);
-
-var _rx = require('rx');
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 var ace;
 
 if (typeof window !== 'undefined') {
   ace = require('brace');
 }
 
-var AceEditorWidget = function AceEditorWidget() {};
+var AceEditorWidget = function AceEditorWidget(initialValue) {
+  this.initialValue = initialValue;
+};
 
 AceEditorWidget.prototype.type = 'Widget';
 
 AceEditorWidget.prototype.init = function () {
   var el = document.createElement('pre');
+  el.textContent = this.initialValue;
   this.editor = ace.edit(el);
   return el;
 };
@@ -35543,6 +35536,35 @@ AceEditorWidget.prototype.destroy = function (domNode) {
   this.editor.destroy();
   this.editor.container.remove();
 };
+
+exports.default = AceEditorWidget;
+
+},{"brace":12}],67:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _dom = require('@cycle/dom');
+
+var _isolate = require('@cycle/isolate');
+
+var _isolate2 = _interopRequireDefault(_isolate);
+
+var _rx = require('rx');
+
+var _ace_editor_widget = require('./ace_editor_widget');
+
+var _ace_editor_widget2 = _interopRequireDefault(_ace_editor_widget);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var ace;
+
+if (typeof window !== 'undefined') {
+  ace = require('brace');
+}
 
 function intentEditorCode(editor$) {
   var editorCode$ = editor$.flatMap(function (editor) {
@@ -35633,7 +35655,7 @@ function model(_ref2) {
 function view(initialValue$) {
 
   return initialValue$.take(1).map(function (code) {
-    return (0, _dom.div)([new AceEditorWidget(code)]);
+    return (0, _dom.div)([new _ace_editor_widget2.default(code)]);
   });
 }
 
@@ -35664,4 +35686,4 @@ function AceEditorWrapper(sources) {
 
 exports.default = AceEditorWrapper;
 
-},{"@cycle/dom":3,"@cycle/isolate":11,"brace":12,"rx":26}]},{},[1]);
+},{"./ace_editor_widget":66,"@cycle/dom":3,"@cycle/isolate":11,"brace":12,"rx":26}]},{},[1]);

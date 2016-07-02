@@ -1,32 +1,13 @@
 import {div, pre} from '@cycle/dom'
 import isolate from '@cycle/isolate'
 import {ReplaySubject, Observable} from 'rx'
+import AceEditorWidget from './ace_editor_widget'
 
 var ace
 
 if (typeof window !== 'undefined') {
   ace = require('brace')
 }
-
-var AceEditorWidget = function (){}
-
-AceEditorWidget.prototype.type = 'Widget'
-
-AceEditorWidget.prototype.init = function() {
-  const el = document.createElement('pre')
-  this.editor = ace.edit(el)
-  return el
-}
-
-AceEditorWidget.prototype.update = function(previous, domNode) {
-
-}
-
-AceEditorWidget.prototype.destroy = function(domNode) {
-  this.editor.destroy()
-  this.editor.container.remove()
-}
-
 
 function intentEditorCode(editor$) {
   const editorCode$ = editor$

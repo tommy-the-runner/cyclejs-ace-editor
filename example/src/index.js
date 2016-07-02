@@ -5,8 +5,9 @@ import AceEditor from '../../src'
 
 function main({DOM}) {
   const editorProps$ = Observable.of()
+  const initialValue$ = Observable.just('Initial code')
 
-  const editor = AceEditor({DOM, params$: editorProps$})
+  const editor = AceEditor({DOM, params$: editorProps$, initialValue$})
 
   return {
     DOM: Observable.combineLatest(editor.DOM, editor.value$.debounce(100),
