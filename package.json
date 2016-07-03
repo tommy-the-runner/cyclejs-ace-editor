@@ -1,6 +1,6 @@
 {
   "name": "cyclejs-ace-editor",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Cycle.js wrapper for the Ace Editor",
   "main": "lib/index.js",
   "scripts": {
