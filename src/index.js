@@ -2,7 +2,7 @@ import {div, pre} from '@cycle/dom'
 import isolate from '@cycle/isolate'
 import {ReplaySubject, Observable} from 'rx'
 import AceEditorWidget from './ace_editor_widget'
-import applyParams from './apply_params'
+import applyParam from './apply_param'
 
 var ace
 
@@ -32,7 +32,17 @@ function intent({DOM, params$, initialValue$}) {
 }
 
 function model({editor$, initialValue$, params$}) {
-  applyParams(editor$, params$).subscribe()
+  editor$
+    .flatMap(editor => {
+      return params$.map((config) => {
+        const key = config[0]
+        const value = config[1]
+
+        return {editor, key, value}
+      })
+    })
+    .subscribe(({editor, key, value}) => applyParam(editor, key, value))
+
 
   const editorCode$ = editor$
     .map(editor => {

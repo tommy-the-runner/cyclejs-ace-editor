@@ -34,7 +34,7 @@ _core2.default.run(main, {
   DOM: (0, _dom.makeDOMDriver)('#example')
 });
 
-},{"../../src":66,"@cycle/core":2,"@cycle/dom":3,"rx":26}],2:[function(require,module,exports){
+},{"../../src":68,"@cycle/core":2,"@cycle/dom":3,"rx":26}],2:[function(require,module,exports){
 "use strict";
 
 var Rx = require("rx");
@@ -35514,23 +35514,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _dom = require('@cycle/dom');
-
-var _isolate = require('@cycle/isolate');
-
-var _isolate2 = _interopRequireDefault(_isolate);
-
-var _rx = require('rx');
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var ace;
-
-if (typeof window !== 'undefined') {
-  ace = require('brace');
-}
 
 var AceEditorWidget = function () {
   function AceEditorWidget(initialValue) {
@@ -35562,6 +35546,16 @@ var AceEditorWidget = function () {
   return AceEditorWidget;
 }();
 
+exports.default = AceEditorWidget;
+
+},{}],67:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = applyParams;
+exports.default = applyParam;
 function applyParams(editor$, params$) {
   return editor$.flatMap(function (editor) {
     return params$.reduce(function (editor, config) {
@@ -35585,6 +35579,54 @@ function applyParams(editor$, params$) {
       return editor;
     }, editor);
   });
+}
+
+function applyParam(editor, key, value) {
+  switch (key) {
+    case 'theme':
+      editor.setTheme(value);
+      break;
+    case 'mode':
+      editor.session.setMode(value);
+      break;
+    case 'readOnly':
+      editor.setReadOnly(value);
+      break;
+
+    default:
+      throw new Error('Unrecognized configuration key: ' + key + ', use `editor$` sink and handle it on your own');
+  }
+}
+
+},{}],68:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _dom = require('@cycle/dom');
+
+var _isolate = require('@cycle/isolate');
+
+var _isolate2 = _interopRequireDefault(_isolate);
+
+var _rx = require('rx');
+
+var _ace_editor_widget = require('./ace_editor_widget');
+
+var _ace_editor_widget2 = _interopRequireDefault(_ace_editor_widget);
+
+var _apply_param = require('./apply_param');
+
+var _apply_param2 = _interopRequireDefault(_apply_param);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var ace;
+
+if (typeof window !== 'undefined') {
+  ace = require('brace');
 }
 
 function intent(_ref) {
@@ -35621,7 +35663,19 @@ function model(_ref2) {
   var initialValue$ = _ref2.initialValue$;
   var params$ = _ref2.params$;
 
-  applyParams(editor$, params$).subscribe();
+  editor$.flatMap(function (editor) {
+    return params$.map(function (config) {
+      var key = config[0];
+      var value = config[1];
+
+      return { editor: editor, key: key, value: value };
+    });
+  }).subscribe(function (_ref3) {
+    var editor = _ref3.editor;
+    var key = _ref3.key;
+    var value = _ref3.value;
+    return (0, _apply_param2.default)(editor, key, value);
+  });
 
   var editorCode$ = editor$.map(function (editor) {
     var subject = new _rx.ReplaySubject(1);
@@ -35642,7 +35696,7 @@ function model(_ref2) {
 function view(initialValue$) {
 
   return initialValue$.take(1).map(function (code) {
-    return (0, _dom.div)([new AceEditorWidget(code)]);
+    return (0, _dom.div)([new _ace_editor_widget2.default(code)]);
   });
 }
 
@@ -35672,4 +35726,4 @@ function AceEditorWrapper(sources) {
 
 exports.default = AceEditorWrapper;
 
-},{"@cycle/dom":3,"@cycle/isolate":11,"brace":12,"rx":26}]},{},[1]);
+},{"./ace_editor_widget":66,"./apply_param":67,"@cycle/dom":3,"@cycle/isolate":11,"brace":12,"rx":26}]},{},[1]);
