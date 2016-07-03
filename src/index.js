@@ -17,12 +17,13 @@ function intent({DOM, params$, initialValue$}) {
     .map(els => els[0])
     .map(el => ace.edit(el))
 
-  const flatParams$ = params$.concatMap(params => {
-    const keys = Object.keys(params)
+  const flatParams$ = (params$ || Observable.empty())
+    .concatMap(params => {
+      const keys = Object.keys(params)
 
-    const paramsArray = keys.map(key => [key, params[key]])
-    return Observable.from(paramsArray)
-  })
+      const paramsArray = keys.map(key => [key, params[key]])
+      return Observable.from(paramsArray)
+    })
 
   return {
     editor$,

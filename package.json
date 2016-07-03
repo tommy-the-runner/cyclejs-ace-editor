@@ -6,7 +6,7 @@
   "scripts": {
     "test": "karma start ./spec/karma.conf.js --single-run",
     "build": "babel src --out-dir lib",
-    "build:example": "browserify example/src/index.js -t babelify --outfile example/index.js",
+    "build:example": "browserify example/src/index.js -t babelify --outfile example/bundle.js",
     "deploy": "gulp deploy"
   },
   "repository": {
