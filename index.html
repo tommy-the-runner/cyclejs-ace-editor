@@ -7,35 +7,82 @@
 	<title>Cycle.js - Ace Editor</title>
 	<style>
 		.ace_editor {
-			width: calc(100% - 500px - 50px);
+			width: calc(100% - 595px - 50px);
 			height: 250px;
 		}
 		.source-code {
 			float: right;
-			width: 500px;
+			width: 595px;
 			padding: 12px;
 			box-sizing: border-box;
 			background: #DEDEDE;
 			margin: 0;
 		}
+
+		.example {
+			overflow: auto;
+		}
 	</style>
 </head>
-<body>
+<div>
 
 <h1>Cycle.js  - Ace Editor</h1>
-<pre class="source-code">
+
+<div class="example">
+	<h2>Basic example</h2>
+	<pre class="source-code">
 import Cycle from '@cycle/core'
 import {div, h3, pre, makeDOMDriver} from '@cycle/dom'
 import {Observable} from 'rx'
 import AceEditor from '../../src'
 
 function main({DOM}) {
-  const editorProps$ = Observable.of()
+	const initialValue$ = Observable.just('Initial code')
 
-  const editor = AceEditor({DOM, config$: editorProps$})
+	const editor = AceEditor({DOM, initialValue$})
+
+	return {
+		DOM: Observable.combineLatest(editor.DOM, editor.value$.debounce(100),
+			(editorVTree, code) => {
+				return div([
+					editorVTree,
+					h3('Debounced value'),
+					pre(code)
+				])
+			})
+	}
+}
+
+Cycle.run(main, {
+	DOM: makeDOMDriver('#example1')
+})
+	</pre>
+	<div id="example1"></div>
+</div>
+
+<hr>
+
+<div class="example">
+	<h2>Example with theme</h2>
+
+	<pre class="source-code">
+import Cycle from '@cycle/core'
+import {div, h3, pre, makeDOMDriver} from '@cycle/dom'
+import {Observable} from 'rx'
+import AceEditor from '../../src'
+
+// Import theme before we can use it
+import 'brace/theme/monokai'
+
+function main({DOM}) {
+  const initialValue$ = Observable.just('Initial code')
+  const params$ = Observable.just({
+    theme: 'ace/theme/monokai'
+  })
+  const editor = AceEditor({DOM, params$, initialValue$})
 
   return {
-    DOM: Observable.combineLatest(editor.DOM, editor.code$.debounce(100),
+    DOM: Observable.combineLatest(editor.DOM, editor.value$.debounce(100),
       (editorVTree, code) => {
         return div([
           editorVTree,
@@ -47,11 +94,11 @@ function main({DOM}) {
 }
 
 Cycle.run(main, {
-  DOM: makeDOMDriver('#example')
+  DOM: makeDOMDriver('#example2')
 })
-</pre>
-<div id="example"></div>
-
-<script src="./index.js"></script>
+	</pre>
+	<div id="example2"></div>
+</div>
+<script src="./bundle.js"></script>
 </body>
 </html>
