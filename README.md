@@ -1,4 +1,4 @@
-# cyclejs-ace-editor
+# cyclejs-ace-editor [![Build Status](https://travis-ci.org/tommy-the-runner/cyclejs-ace-editor.svg?branch=master)](https://travis-ci.org/tommy-the-runner/cyclejs-ace-editor)
 
 Cycle.js intergration with [Ace Editor](https://ace.c9.io/) using
 [brace](https://github.com/thlorenz/brace).
