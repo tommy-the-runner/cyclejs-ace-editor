@@ -9,6 +9,9 @@ export default function applyParam(editor, key, value) {
     case 'readOnly':
       editor.setReadOnly(value)
       break
+    case 'fontSize':
+      editor.setFontSize(value)
+      break
 
     default:
       throw new Error('Unrecognized configuration key: ' + key + ', use `editor$` sink and handle it on your own')
