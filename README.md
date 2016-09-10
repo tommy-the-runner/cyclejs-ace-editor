@@ -33,6 +33,7 @@ Supported keys for the params:
  - `theme`
  - `mode`
  - `readOnly`
+ - `fontSize`
 
 ## Example
 
