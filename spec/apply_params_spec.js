@@ -7,7 +7,8 @@ describe('apply_param', function () {
       setTheme: sinon.spy(),
       setFontSize: sinon.spy(),
       session: {
-        setMode: sinon.spy()
+        setMode: sinon.spy(),
+        setOptions: sinon.spy()
       }
     }
   })
@@ -30,6 +31,11 @@ describe('apply_param', function () {
   it('should apply font size', function () {
     applyParam(this.editor, 'fontSize', 11)
     expect(this.editor.setFontSize).to.have.been.calledWith(11)
+  })
+
+  it('should session options', function () {
+    applyParam(this.editor, 'sessionOptions', { tabSize: 12, mode: 'ace/mode/javascript' })
+    expect(this.editor.session.setOptions).to.have.been.calledWith({ tabSize: 12, mode: 'ace/mode/javascript' })
   })
 
   it('should throw an exception when option is not recognized', function () {
