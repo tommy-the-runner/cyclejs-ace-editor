@@ -31,9 +31,12 @@ Sinks:
 
 Supported keys for the params:
  - `theme`
- - `mode`
  - `readOnly`
  - `fontSize`
+ - `sessionOptions` - calls `editor.session.setOptions()`
+ 
+Supported, but deprecated: 
+ - `mode` - use `sessionOptions` instead
 
 ## Example
 
