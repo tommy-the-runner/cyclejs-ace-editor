@@ -12,7 +12,7 @@ export default class AceEditorWidget {
   }
 
   update(previous, domNode) {
-
+    this.editor = previous.editor
   }
 
   destroy(domNode) {
