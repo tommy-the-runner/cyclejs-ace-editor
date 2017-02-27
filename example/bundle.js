@@ -35689,7 +35689,9 @@ var AceEditorWidget = function () {
     }
   }, {
     key: 'update',
-    value: function update(previous, domNode) {}
+    value: function update(previous, domNode) {
+      this.editor = previous.editor;
+    }
   }, {
     key: 'destroy',
     value: function destroy(domNode) {
