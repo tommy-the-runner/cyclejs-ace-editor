@@ -34,6 +34,7 @@ function intent({DOM, params$, initialValue$}) {
 
 function model({editor$, initialValue$, params$}) {
   editor$
+    .distinctUntilChanged()
     .flatMap(editor => {
       return params$.map((config) => {
         const key = config[0]

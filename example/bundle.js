@@ -35715,11 +35715,19 @@ function applyParam(editor, key, value) {
     case 'theme':
       editor.setTheme(value);
       break;
-    case 'mode':
-      editor.session.setMode(value);
+    case 'sessionOptions':
+      editor.session.setOptions(value);
       break;
     case 'readOnly':
       editor.setReadOnly(value);
+      break;
+    case 'fontSize':
+      editor.setFontSize(value);
+      break;
+
+    // Deprecated
+    case 'mode':
+      editor.session.setMode(value);
       break;
 
     default:
@@ -35792,7 +35800,7 @@ function model(_ref2) {
   var initialValue$ = _ref2.initialValue$;
   var params$ = _ref2.params$;
 
-  editor$.flatMap(function (editor) {
+  editor$.distinctUntilChanged().flatMap(function (editor) {
     return params$.map(function (config) {
       var key = config[0];
       var value = config[1];
